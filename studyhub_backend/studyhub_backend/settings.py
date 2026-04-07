@@ -11,7 +11,7 @@ SECRET_KEY = 'django-insecure-eu#6ahfxi)c@-)bjn1x5i@rpr0yd02*m7+_f6gb*sa!u)8x0%u
 
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 INSTALLED_APPS = [
@@ -121,3 +121,6 @@ REST_FRAMEWORK = {
 }
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+ACCOUNT_LOGIN_METHODS = {'username'}
