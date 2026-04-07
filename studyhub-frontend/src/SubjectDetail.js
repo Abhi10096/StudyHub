@@ -25,19 +25,33 @@ function SubjectDetail() {
   const isStaff = localStorage.getItem('isStaff') === 'true';
   const isStudent = !isSuperuser && !isStaff;
 
-  const fetchData = useCallback(() => {
+  const fetchData = useCallback(async () => {
     const config = { headers: { Authorization: `Token ${token}` } };
 
-    axios.get('http://127.0.0.1:8000/api/subjects/', config)
-      .then(res => {
-        const sub = res.data.find(s => s.name === subjectName);
-        if (sub) setSubjectId(sub.id);
-      }).catch(err => console.error(err));
+    try {
+      // 1. आधी Subject चा ID मिळवा
+      const subRes = await axios.get('http://127.0.0.1:8000/api/subjects/', config);
+      const subjectsData = Array.isArray(subRes.data) ? subRes.data : (subRes.data.results || []);
 
-    axios.get('http://127.0.0.1:8000/api/documents/', config)
-      .then(res => setDocuments(res.data.filter(doc => doc.title.includes(subjectName) || (subjectId && doc.subject === subjectId))))
-      .catch(err => console.error("Data error:", err));
-  }, [subjectName, subjectId, token]);
+      const sub = subjectsData.find(s => s.name === subjectName);
+      let currentSubjectId = null;
+
+      if (sub) {
+        setSubjectId(sub.id);
+        currentSubjectId = sub.id; // Local variable वापरणे सुरक्षित आहे
+      }
+
+      // 2. त्यानंतर Documents मिळवा आणि Filter करा
+      const docRes = await axios.get('http://127.0.0.1:8000/api/documents/', config);
+      const filteredDocs = docRes.data.filter(doc =>
+        doc.title.includes(subjectName) || (currentSubjectId && doc.subject === currentSubjectId)
+      );
+      setDocuments(filteredDocs);
+
+    } catch (err) {
+      console.error("Data error:", err);
+    }
+  }, [subjectName, token]);
 
   useEffect(() => {
     if (!token) navigate('/login'); else fetchData();

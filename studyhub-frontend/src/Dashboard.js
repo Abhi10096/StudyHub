@@ -26,6 +26,7 @@ function Dashboard() {
 
   return (
     <div className="pb-5">
+      {/* Navbar Section */}
       <nav className="navbar navbar-dark bg-dark py-3 shadow-sm">
         <div className="container">
           <Link className="navbar-brand fw-bold text-uppercase" style={{ letterSpacing: '1px' }} to="/dashboard">
@@ -45,7 +46,7 @@ function Dashboard() {
 
           {/* 1. Academic Curriculum Card */}
           <div className="col-md-4">
-            <div className="card h-100 shadow-sm border-0">
+            <div className="card h-100 shadow-sm border-0 border-top border-primary border-4">
               <div className="card-body p-4 d-flex flex-column">
                 <h5 className="fw-bold text-dark">Academic Curriculum</h5>
                 <p className="text-muted small mb-4">Access assigned courses, study materials, and assignments.</p>
@@ -54,7 +55,7 @@ function Dashboard() {
             </div>
           </div>
 
-          {/* 2. NEW: Discussion Forum (Q&A) Card */}
+          {/* 2. Discussion Forum (Q&A) Card */}
           <div className="col-md-4">
             <div className="card h-100 shadow-sm border-0 border-top border-success border-4">
               <div className="card-body p-4 d-flex flex-column">
@@ -65,7 +66,18 @@ function Dashboard() {
             </div>
           </div>
 
-          {/* 3. Account Profile Card */}
+          {/* 3. NEW: Official Notice Board Card */}
+          <div className="col-md-4">
+            <div className="card h-100 shadow-sm border-0 border-top border-info border-4">
+              <div className="card-body p-4 d-flex flex-column">
+                <h5 className="fw-bold text-dark">Official Notices</h5>
+                <p className="text-muted small mb-4">Stay updated with college announcements, exam schedules, and events.</p>
+                <Link to="/notices" className="btn btn-info text-white w-100 mt-auto fw-bold">View Notice Board</Link>
+              </div>
+            </div>
+          </div>
+
+          {/* 4. Account Profile Card */}
           <div className="col-md-4">
             <div className="card h-100 shadow-sm border-0">
               <div className="card-body p-4 d-flex flex-column">
@@ -76,7 +88,7 @@ function Dashboard() {
             </div>
           </div>
 
-          {/* 4. Student Directory (Teachers & Admin Only) */}
+          {/* 5. Student Directory (Teachers & Admin Only) */}
           {(isSuperuser || isStaff) && (
             <div className="col-md-4">
               <div className="card h-100 shadow-sm border-0">
@@ -89,7 +101,7 @@ function Dashboard() {
             </div>
           )}
 
-          {/* 5. Registration Approvals (Admin Only) */}
+          {/* 6. Registration Approvals (Admin Only) */}
           {isSuperuser && (
             <div className="col-md-4">
               <div className="card h-100 shadow-sm border-0 border-top border-warning border-4">
@@ -102,7 +114,7 @@ function Dashboard() {
             </div>
           )}
 
-          {/* 6. Global User Authority (Admin Only) */}
+          {/* 7. Global User Authority (Admin Only) */}
           {isSuperuser && (
             <div className="col-md-4">
               <div className="card h-100 shadow-sm border-0 border-top border-danger border-4">

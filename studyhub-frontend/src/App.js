@@ -13,6 +13,7 @@ import Subjects from './Subjects';
 import SubjectDetail from './SubjectDetail';
 import ViewSubmissions from './ViewSubmissions';
 import DiscussionForum from './DiscussionForum';
+import NoticeList from './NoticeList';
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
           <Route path="/subject/:subjectName" element={<SubjectDetail />} />
           <Route path="/submissions/:assignmentId" element={<ViewSubmissions />} />
           <Route path="/forum" element={<DiscussionForum />} />
+          <Route path="/notices" element={<NoticeList />} />
         </Routes>
       </div>
     </Router>

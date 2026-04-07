@@ -27,7 +27,7 @@ const DiscussionForum = () => {
         fetchData();
         const isStaff = localStorage.getItem('isStaff') === 'true';
         const isSuperuser = localStorage.getItem('isSuperuser') === 'true';
-        const username = localStorage.getItem('username'); // आता हे Login मधून बरोबर येईल
+        const username = localStorage.getItem('username');
 
         setUserRole(isStaff || isSuperuser);
         setCurrentUserId(username);
@@ -43,11 +43,18 @@ const DiscussionForum = () => {
         const token = localStorage.getItem('token');
         const config = { headers: { Authorization: `Token ${token}` } };
         try {
-            const qRes = await axios.get('http://localhost:8000/api/questions/', config);
+            // Fetch Questions (Backend returns a flat array)
+            const qRes = await axios.get('http://127.0.0.1:8000/api/questions/', config);
             setQuestions(qRes.data);
 
-            const sRes = await axios.get('http://localhost:8000/api/subjects/', config);
-            setSubjects(sRes.data);
+            // Fetch Subjects
+            const sRes = await axios.get('http://127.0.0.1:8000/api/subjects/', config);
+
+            // FIXED: Handling the new backend object structure { current_path, results: [] }
+            // If .results exists, use it. Otherwise, fallback to standard array.
+            const subjectsData = sRes.data.results ? sRes.data.results : sRes.data;
+            setSubjects(subjectsData);
+
         } catch (error) {
             console.error("Error fetching data", error);
         }
@@ -58,7 +65,7 @@ const DiscussionForum = () => {
         e.preventDefault();
         const token = localStorage.getItem('token');
         try {
-            await axios.post('http://localhost:8000/api/questions/', newQuestion, {
+            await axios.post('http://127.0.0.1:8000/api/questions/', newQuestion, {
                 headers: { Authorization: `Token ${token}` }
             });
             setShowAskForm(false);
@@ -68,13 +75,14 @@ const DiscussionForum = () => {
             alert("Question submitted successfully!");
         } catch (error) {
             console.error("Error asking question", error);
+            alert("Failed to submit question. Check inputs.");
         }
     };
 
     const handleReply = async (questionId) => {
         const token = localStorage.getItem('token');
         try {
-            await axios.post(`http://localhost:8000/api/questions/${questionId}/reply/`,
+            await axios.post(`http://127.0.0.1:8000/api/questions/${questionId}/reply/`,
                 { content: replyContent },
                 { headers: { Authorization: `Token ${token}` } }
             );
@@ -110,7 +118,7 @@ const DiscussionForum = () => {
             // STUDENT TABS
             if (activeTab === 'archive') matchesTab = q.is_resolved;
             if (activeTab === 'my_questions') {
-                // 🚨 BUG FIXED: String conversion for safe matching
+                // Ensure safe string comparison for Roll Number
                 matchesTab = String(q.asked_by_roll) === String(currentUserId);
             }
         }
@@ -151,6 +159,7 @@ const DiscussionForum = () => {
                                     value={newQuestion.subject}
                                     onChange={(e) => setNewQuestion({...newQuestion, subject: e.target.value})}>
                                 <option value="">Select Subject...</option>
+                                {/* Safe mapping after applying the fix */}
                                 {subjects.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                             </select>
                             <input type="text" className="form-control mb-3" placeholder="Question Title (e.g. What is Polymorphism?)"
