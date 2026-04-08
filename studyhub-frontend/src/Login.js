@@ -11,16 +11,19 @@ const Login = () => {
     const handleLogin = async (e) => {
         e.preventDefault();
         setError('');
+
+        // 1. IP address variable madhe theva
         const API_URL = "http://65.2.141.239:8000";
+
         try {
-            const response = await axios.post('http://65.2.141.239:8000/api/login/',  {
+            // 2. Variable cha vapar kara `${API_URL}` asha prakare
+            const response = await axios.post(`${API_URL}/api/login/`, {
                 username,
                 password
             });
 
-            // 🚨 MOST IMPORTANT: Saving all data to localStorage properly
             localStorage.setItem('token', response.data.token);
-            localStorage.setItem('username', response.data.username); // <--- ही लाईन प्रॉब्लेम सॉल्व्ह करेल
+            localStorage.setItem('username', response.data.username);
             localStorage.setItem('isStaff', response.data.is_staff);
             localStorage.setItem('isSuperuser', response.data.is_superuser);
             localStorage.setItem('courseId', response.data.course_id || '');
