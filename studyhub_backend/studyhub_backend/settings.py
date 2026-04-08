@@ -11,8 +11,7 @@ SECRET_KEY = 'django-insecure-eu#6ahfxi)c@-)bjn1x5i@rpr0yd02*m7+_f6gb*sa!u)8x0%u
 
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
-
+ALLOWED_HOSTS = ['65.2.141.239', 'studyhubfrontend.vercel.app', 'localhost', '127.0.0.1']
 # Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -95,8 +94,11 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 # CORS Settings
-CORS_ALLOW_ALL_ORIGINS = True
-
+CORS_ALLOW_ALL_ORIGINS = False
+# He CORS sathi aahe (Backend la sangte ki ya frontend la allow kar)
+CORS_ALLOWED_ORIGINS = [
+    "https://studyhubfrontend.vercel.app",
+]
 # Media Settings
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
