@@ -94,11 +94,14 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 # CORS Settings
-CORS_ALLOW_ALL_ORIGINS = False
-# He CORS sathi aahe (Backend la sangte ki ya frontend la allow kar)
 CORS_ALLOWED_ORIGINS = [
     "https://studyhubfrontend.vercel.app",
+    "http://localhost:3000", # Jar tumhi local react vaprat asal tar
 ]
+
+# Kiwa testing purte he vapra:
+CORS_ALLOW_ALL_ORIGINS = True
+
 # Media Settings
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
