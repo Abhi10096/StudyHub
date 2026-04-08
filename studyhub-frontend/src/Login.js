@@ -11,8 +11,9 @@ const Login = () => {
     const handleLogin = async (e) => {
         e.preventDefault();
         setError('');
+        const API_URL = "http://65.2.141.239:8000";
         try {
-            const response = await axios.post('http://localhost:8000/api/login/', {
+            const response = await axios.post('http://65.2.141.239:8000/api/login/',  {
                 username,
                 password
             });
