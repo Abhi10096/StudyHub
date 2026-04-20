@@ -68,14 +68,20 @@ TEMPLATES = [
 WSGI_APPLICATION = 'studyhub_backend.wsgi.application'
 
 # New AWS RDS PostgreSQL Configuration
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'postgres',  # This is the default database name created by AWS RDS
+#         'USER': 'postgres',  # The Master username you set in AWS
+#         'PASSWORD': 'Abhi1840',  # password you created
+#         'HOST': 'studyhub-db.cp6k22yce23w.ap-south-1.rds.amazonaws.com',  # Paste your RDS Endpoint string here
+#         'PORT': '5432',  # Default port for PostgreSQL
+#     }
+# }
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',  # This is the default database name created by AWS RDS
-        'USER': 'postgres',  # The Master username you set in AWS
-        'PASSWORD': 'Abhi1840',  # password you created
-        'HOST': 'studyhub-db.cp6k22yce23w.ap-south-1.rds.amazonaws.com',  # Paste your RDS Endpoint string here
-        'PORT': '5432',  # Default port for PostgreSQL
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
@@ -96,7 +102,7 @@ STATIC_URL = 'static/'
 # CORS Settings
 CORS_ALLOWED_ORIGINS = [
     "https://studyhubfrontend.vercel.app",
-    "http://localhost:3000", # Jar tumhi local react vaprat asal tar
+    "http://localhost:3000",
 ]
 
 # Kiwa testing purte he vapra:

@@ -13,23 +13,30 @@ from .views import (
     ProfileChangeApprovalAPI,
     UserManagementAPI,
     QuestionViewSet,
-    NoticeViewSet
+    NoticeViewSet,
+    # NEW: Test Module ViewSets
+    TestViewSet,
+    QuizQuestionViewSet,
+    TestResultViewSet
 )
 
 # Initialize the REST Framework Router
 router = DefaultRouter()
 
-# ViewSets with a static 'queryset' attribute do not require a basename
+# Academic & Resource Module
 router.register(r'courses', CourseViewSet)
 router.register(r'documents', DocumentViewSet)
-
-# ViewSets that use a custom 'get_queryset()' method MUST have a manually defined 'basename'
-router.register(r'subjects', SubjectViewSet, basename='subject') # <-- FIXED: Added basename here to prevent the AssertionError
+router.register(r'subjects', SubjectViewSet, basename='subject')
 router.register(r'submissions', StudentSubmissionViewSet, basename='submission')
-router.register(r'questions', QuestionViewSet, basename='question')
 
-# NoticeViewSet has a static queryset, so defining a basename is optional but safe to keep
+# Q&A and Notice Board Module
+router.register(r'questions', QuestionViewSet, basename='question')
 router.register(r'notices', NoticeViewSet, basename='notice')
+
+# ---------------- NEW: Online Test Module Routes ---------------- #
+router.register(r'tests', TestViewSet, basename='test')
+router.register(r'quiz-questions', QuizQuestionViewSet, basename='quiz-question')
+router.register(r'test-results', TestResultViewSet, basename='test-result')
 
 urlpatterns = [
     # Include all auto-generated API endpoints from the router

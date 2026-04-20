@@ -1,10 +1,10 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 
-# Cleaned up imports (removed duplicates)
+# Updated imports to include Test models
 from .models import (
     Course, Subject, Document, StudentSubmission,
-    Question, Answer, Notice
+    Question, Answer, Notice, Test, QuizQuestion, TestResult
 )
 
 
@@ -13,11 +13,10 @@ from .models import (
 class CourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
-        fields = '__all__'
+        fields = ['id', 'name', 'description', 'total_semesters']
 
 
 class SubjectSerializer(serializers.ModelSerializer):
-    # Fetch the actual course name instead of just the ID
     course_name = serializers.CharField(source='course.name', read_only=True)
 
     class Meta:
@@ -45,10 +44,48 @@ class StudentSubmissionSerializer(serializers.ModelSerializer):
         return name if name else "Not Provided"
 
 
+# ---------------- ONLINE TEST MODULE SERIALIZERS ---------------- #
+
+class QuizQuestionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = QuizQuestion
+        # ✅ FIXED: 'test' field added so React can send the Test ID when creating questions
+        fields = ['id', 'test', 'question_text', 'option_1', 'option_2', 'option_3', 'option_4', 'correct_option']
+
+
+class TestSerializer(serializers.ModelSerializer):
+    subject_name = serializers.CharField(source='subject.name', read_only=True)
+    # Include questions inside the test object for viewing
+    questions = QuizQuestionSerializer(many=True, read_only=True)
+    question_count = serializers.IntegerField(source='questions.count', read_only=True)
+
+    class Meta:
+        model = Test
+        fields = [
+            'id', 'title', 'description', 'subject', 'subject_name',
+            'time_limit_mins', 'deadline', 'marks_per_question',
+            'question_count', 'questions', 'created_at'
+        ]
+
+
+class TestResultSerializer(serializers.ModelSerializer):
+    student_name = serializers.SerializerMethodField()
+    test_title = serializers.CharField(source='test.title', read_only=True)
+
+    class Meta:
+        model = TestResult
+        fields = [
+            'id', 'test', 'test_title', 'student', 'student_name',
+            'score', 'total_questions', 'submitted_at', 'is_auto_submitted'
+        ]
+
+    def get_student_name(self, obj):
+        return f"{obj.student.first_name} {obj.student.last_name}".strip() or obj.student.username
+
+
 # ---------------- Q&A MODULE SERIALIZERS ---------------- #
 
 class AnswerSerializer(serializers.ModelSerializer):
-    # FIXED: Used SerializerMethodField because Django User has no 'name' attribute natively
     answered_by_name = serializers.SerializerMethodField()
 
     class Meta:
@@ -63,10 +100,7 @@ class AnswerSerializer(serializers.ModelSerializer):
 class QuestionSerializer(serializers.ModelSerializer):
     subject_name = serializers.CharField(source='subject.name', read_only=True)
     asked_by_roll = serializers.CharField(source='asked_by.username', read_only=True)
-    # FIXED: Handled first_name and last_name properly
     asked_by_name = serializers.SerializerMethodField()
-
-    # Include the nested answer directly in the question data if it exists
     answer = AnswerSerializer(read_only=True)
 
     class Meta:
@@ -87,13 +121,16 @@ class QuestionSerializer(serializers.ModelSerializer):
 
 class NoticeSerializer(serializers.ModelSerializer):
     posted_by_name = serializers.SerializerMethodField()
+    target_course_name = serializers.CharField(source='target_course.name', read_only=True)
 
     class Meta:
         model = Notice
-        fields = ['id', 'title', 'content', 'created_at', 'posted_by', 'posted_by_name']
+        fields = [
+            'id', 'title', 'content', 'target_course', 'target_course_name',
+            'target_semester', 'created_at', 'posted_by', 'posted_by_name'
+        ]
         read_only_fields = ['posted_by', 'created_at']
 
     def get_posted_by_name(self, obj):
-        # Fallback to username if first/last names are empty
         name = f"{obj.posted_by.first_name} {obj.posted_by.last_name}".strip()
         return name if name else obj.posted_by.username

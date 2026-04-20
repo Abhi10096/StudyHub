@@ -2,30 +2,43 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 
+/**
+ * Register Component: Handles user onboarding for the StudyHub portal.
+ * Collects personal details, role-based academic mapping, and credentials.
+ */
 function Register() {
   const [formData, setFormData] = useState({
     firstName: '', lastName: '', username: '', password: '', role: 'student',
     courseId: '', semester: ''
   });
   const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  // Fetch available courses for department assignment
+  /**
+   * Sync available academic departments/courses from the backend.
+   */
   useEffect(() => {
     axios.get('http://127.0.0.1:8000/api/courses/')
       .then(res => setCourses(res.data))
-      .catch(err => console.error("Error fetching courses:", err));
+      .catch(err => console.error("Course mapping synchronization failed:", err));
   }, []);
 
+  /**
+   * Final Submission logic for account creation request.
+   */
   const handleRegister = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
-    // Validation based on selected role
+    // Context-specific validation
     if (!formData.courseId) {
-      return alert("Please select a Department/Course.");
+      setLoading(false);
+      return alert("Critical: Please assign a Department/Course.");
     }
     if (formData.role === 'student' && !formData.semester) {
-      return alert("Please select a Semester.");
+      setLoading(false);
+      return alert("Critical: Please select your current Semester.");
     }
 
     try {
@@ -38,70 +51,106 @@ function Register() {
         course_id: formData.courseId,
         semester: formData.semester
       });
-      alert('Registration successful. Please wait for Admin approval.');
+      alert('Application Received! Account activation is pending Admin approval.');
       navigate('/login');
     } catch (error) {
-      alert(error.response?.data?.error || 'Registration failed.');
+      setLoading(false);
+      alert(error.response?.data?.error || 'Registration fault. Username may already exist.');
     }
   };
 
   return (
-    <div style={{ backgroundColor: '#f4f7f6', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 0' }}>
-      <div className="card shadow-lg border-0 rounded-4" style={{ width: '500px' }}>
-        <div className="card-body p-5">
+    <div className="container min-vh-100 d-flex align-items-center justify-content-center py-5">
+      <div className="row justify-content-center w-100">
+        <div className="col-md-6 col-lg-5">
+
+          {/* Brand Header */}
           <div className="text-center mb-4">
-            <h3 className="fw-bold text-dark">Join StudyHub</h3>
-            <p className="text-muted">Create your academic account</p>
+            <h2 className="fw-bolder text-primary">Join StudyHub</h2>
+            <p className="text-muted small">Begin your academic collaboration today</p>
           </div>
 
-          <form onSubmit={handleRegister}>
-            <div className="row g-2 mb-3">
-              <div className="col-6"><input type="text" className="form-control" placeholder="First Name" required onChange={(e) => setFormData({...formData, firstName: e.target.value})} /></div>
-              <div className="col-6"><input type="text" className="form-control" placeholder="Last Name" required onChange={(e) => setFormData({...formData, lastName: e.target.value})} /></div>
-            </div>
+          {/* Registration Card */}
+          <div className="card shadow border-0 rounded-4 overflow-hidden">
+            <div className="card-body p-4 p-md-5">
+              <h4 className="fw-bold mb-4">Create Account</h4>
 
-            <div className="mb-3">
-              <input type="text" className="form-control" placeholder="Username / Roll No" required onChange={(e) => setFormData({...formData, username: e.target.value})} />
-            </div>
-            <div className="mb-3">
-              <input type="password" className="form-control" placeholder="Password" required onChange={(e) => setFormData({...formData, password: e.target.value})} />
-            </div>
+              <form onSubmit={handleRegister}>
+                {/* Full Name Row */}
+                <div className="row g-2 mb-3">
+                  <div className="col-6">
+                    <label className="form-label small fw-bold text-muted text-uppercase">First Name</label>
+                    <input type="text" className="form-control bg-light border-0 shadow-none py-2"
+                           placeholder="John" required onChange={(e) => setFormData({...formData, firstName: e.target.value})} />
+                  </div>
+                  <div className="col-6">
+                    <label className="form-label small fw-bold text-muted text-uppercase">Last Name</label>
+                    <input type="text" className="form-control bg-light border-0 shadow-none py-2"
+                           placeholder="Doe" required onChange={(e) => setFormData({...formData, lastName: e.target.value})} />
+                  </div>
+                </div>
 
-            <div className="mb-3">
-              <select className="form-select fw-bold" onChange={(e) => setFormData({...formData, role: e.target.value})}>
-                <option value="student">Register as Student</option>
-                <option value="teacher">Register as Faculty</option>
-              </select>
-            </div>
+                {/* Identity & Credentials */}
+                <div className="mb-3">
+                  <label className="form-label small fw-bold text-muted text-uppercase">Username / Roll No</label>
+                  <input type="text" className="form-control bg-light border-0 shadow-none py-2"
+                         placeholder="e.g. 21MCA05" required onChange={(e) => setFormData({...formData, username: e.target.value})} />
+                </div>
+                <div className="mb-3">
+                  <label className="form-label small fw-bold text-muted text-uppercase">Secure Password</label>
+                  <input type="password" className="form-control bg-light border-0 shadow-none py-2"
+                         placeholder="••••••••" required onChange={(e) => setFormData({...formData, password: e.target.value})} />
+                </div>
 
-            {/* Department selection is mandatory for both roles */}
-            <div className="row g-2 mb-4 p-3 bg-light rounded-3 border">
-              <div className={formData.role === 'student' ? "col-7" : "col-12"}>
-                <label className="fw-bold text-muted small">Department / Course</label>
-                <select className="form-select" required onChange={(e) => setFormData({...formData, courseId: e.target.value})}>
-                  <option value="">-- Choose Course --</option>
-                  {courses.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                </select>
-              </div>
-
-              {/* Semester is only visible for students */}
-              {formData.role === 'student' && (
-                <div className="col-5">
-                  <label className="fw-bold text-muted small">Semester</label>
-                  <select className="form-select" required onChange={(e) => setFormData({...formData, semester: e.target.value})}>
-                    <option value="">-- Sem --</option>
-                    {[1,2,3,4,5,6,7,8].map(s => <option key={s} value={s}>Semester {s}</option>)}
+                {/* Role Definition */}
+                <div className="mb-4">
+                  <label className="form-label small fw-bold text-muted text-uppercase">System Role</label>
+                  <select className="form-select bg-light border-0 shadow-none py-2 fw-semibold"
+                          onChange={(e) => setFormData({...formData, role: e.target.value})}>
+                    <option value="student">Register as Enrolled Student</option>
+                    <option value="teacher">Register as Faculty Member</option>
                   </select>
                 </div>
-              )}
+
+                {/* Academic Context (Role Dependent) */}
+                <div className="p-4 bg-light rounded-4 mb-4 border border-dashed">
+                  <div className="row g-3">
+                    <div className={formData.role === 'student' ? "col-8" : "col-12"}>
+                      <label className="fw-bold text-primary small text-uppercase d-block mb-1">Department</label>
+                      <select className="form-select border-0 shadow-sm" required
+                              onChange={(e) => setFormData({...formData, courseId: e.target.value})}>
+                        <option value="">-- Choose Course --</option>
+                        {courses.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                      </select>
+                    </div>
+
+                    {formData.role === 'student' && (
+                      <div className="col-4">
+                        <label className="fw-bold text-primary small text-uppercase d-block mb-1">Semester</label>
+                        <select className="form-select border-0 shadow-sm" required
+                                onChange={(e) => setFormData({...formData, semester: e.target.value})}>
+                          <option value="">-- Sem --</option>
+                          {[1,2,3,4,5,6].map(s => <option key={s} value={s}>{s}</option>)}
+                        </select>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Submission Control */}
+                <button type="submit" className="btn btn-primary w-100 fw-bold rounded-pill py-3 shadow-sm transition-hover" disabled={loading}>
+                  {loading ? (
+                    <><span className="spinner-border spinner-border-sm me-2"></span>Processing Application...</>
+                  ) : "Submit Registration Request"}
+                </button>
+              </form>
+
+              {/* Navigation Back */}
+              <div className="text-center mt-4">
+                <span className="text-muted small">Already a member? </span>
+                <Link to="/login" className="text-primary fw-bold text-decoration-none">Return to Login</Link>
+              </div>
             </div>
-
-            <button type="submit" className="btn btn-primary w-100 fw-bold rounded-pill py-2 mt-2">Submit Request</button>
-          </form>
-
-          <div className="text-center mt-4">
-            <span className="text-muted">Already have an account? </span>
-            <Link to="/login" className="fw-bold text-decoration-none">Login Here</Link>
           </div>
         </div>
       </div>
