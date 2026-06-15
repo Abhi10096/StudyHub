@@ -3,11 +3,10 @@ import { useNavigate, useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 
 /**
- * Subjects Component: Dynamic Academic Curriculum Board.
- * Logic: Triple-check system to ensure Course Name is always displayed.
+ * Subjects Component: Updated to filter data based on courseId.
  */
 function Subjects() {
-  const { courseId } = useParams();
+  const { courseId } = useParams(); // URL parameter (e.g., /course/1)
   const [courseName, setCourseName] = useState('Academic Board');
   const [departmentPath, setDepartmentPath] = useState('');
   const [subjects, setSubjects] = useState([]);
@@ -25,33 +24,32 @@ function Subjects() {
   const isStudent = !isStaff && !isSuperuser;
 
   /**
-   * Enhanced Data Sync with Multi-level Name Detection
+   * UPDATED: Added filtering logic to fetch only relevant subjects.
    */
   const fetchData = useCallback(async () => {
     const config = { headers: { Authorization: `Token ${token}` } };
     try {
-      const response = await axios.get('http://127.0.0.1:8000/api/subjects/', config);
+      const response = await axios.get(`http://127.0.0.1:8000/api/subjects/?course=${courseId}`, config);
       const data = response.data;
 
-      // 1. Handling Paginated vs Simple List
       let subjectsArray = Array.isArray(data) ? data : (data.results || []);
-      setSubjects(subjectsArray);
 
-      // 2. NAME DETECTION LOGIC (The Fix)
+      // Client-side filter to ensure correct subjects are shown
+      const filteredByCourse = subjectsArray.filter(sub => String(sub.course) === String(courseId));
+      setSubjects(filteredByCourse);
+
+      // NAME DETECTION LOGIC
       if (data.current_path && data.current_path !== "Academic Curriculum") {
-        // Option A: Get from backend breadcrumb
         setDepartmentPath(data.current_path);
         setCourseName(data.current_path.split(' ')[0]);
       }
-      else if (subjectsArray.length > 0 && subjectsArray[0].course_name) {
-        // Option B: Get from Subject Serializer
-        const nameFromSub = subjectsArray[0].course_name;
+      else if (filteredByCourse.length > 0 && filteredByCourse[0].course_name) {
+        const nameFromSub = filteredByCourse[0].course_name;
         setCourseName(nameFromSub);
         setDepartmentPath(`${nameFromSub} Department`);
       }
       else {
-        // Option C: Fallback to LocalStorage or generic info
-        const storedCourse = localStorage.getItem('userCourseName'); // If you saved it during login
+        const storedCourse = localStorage.getItem('userCourseName');
         if (storedCourse) setCourseName(storedCourse);
       }
 
@@ -62,7 +60,7 @@ function Subjects() {
     } catch (err) {
       console.error("Fetch Error:", err);
     }
-  }, [token, isStudent]);
+  }, [token, isStudent, courseId]);
 
   useEffect(() => {
     if (!token) navigate('/login'); else fetchData();
@@ -72,7 +70,7 @@ function Subjects() {
     e.preventDefault();
     try {
       await axios.post('http://127.0.0.1:8000/api/subjects/',
-        { name: newSubName, semester: newSubSem, course: courseId ? parseInt(courseId) : 1 },
+        { name: newSubName, semester: newSubSem, course: parseInt(courseId) },
         { headers: { Authorization: `Token ${token}` } }
       );
       setNewSubName(''); setNewSubSem(''); setShowAddForm(false);
@@ -107,12 +105,9 @@ function Subjects() {
 
   return (
     <div className="pb-5 arctic-body min-vh-100 animate-in">
-
-      {/* Arctic Header: Dynamic Title */}
       <div className="curriculum-banner mb-5 py-4 shadow-sm text-white">
         <div className="container d-flex justify-content-between align-items-center">
           <div>
-            {/* Displaying the detected courseName state */}
             <h2 className="fw-bold mb-0 text-uppercase">{courseName} CURRICULUM</h2>
             <p className="small fw-bold opacity-75 mt-1">
                 <i className="bi bi-mortarboard-fill me-2"></i>{departmentPath || "Department Records"}
@@ -125,7 +120,6 @@ function Subjects() {
       </div>
 
       <div className="container">
-        {/* Search & Actions */}
         <div className="card shadow-sm border-0 mb-4 p-3 rounded-4 bg-white">
           <div className="row g-3 align-items-center">
             <div className="col-md-6">
@@ -144,7 +138,6 @@ function Subjects() {
           </div>
         </div>
 
-        {/* Create Form */}
         {showAddForm && (
           <form onSubmit={handleAddSubject} className="mb-5 row g-3 bg-white p-4 rounded-4 shadow-sm border-top border-success border-5 animate-in">
             <div className="col-md-6"><input type="text" className="form-control bg-light border-0" placeholder="Module Name" value={newSubName} onChange={(e) => setNewSubName(e.target.value)} required /></div>

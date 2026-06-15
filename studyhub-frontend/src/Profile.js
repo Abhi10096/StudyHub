@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 
 /**
  * Profile Component: Manages user identity details and administrative requests.
- * Modified: Students can now only request Semester changes, not Course changes.
  */
 function Profile() {
   const [profile, setProfile] = useState(null);
@@ -22,7 +21,6 @@ function Profile() {
     axios.get('http://127.0.0.1:8000/api/profile/', config)
       .then(res => {
         setProfile(res.data);
-        // Default the request field to current semester for better UX
         if(res.data.semester !== '-') setReqSem(res.data.semester);
       })
       .catch(err => console.error("Profile synchronization error:", err));
@@ -39,16 +37,23 @@ function Profile() {
     e.preventDefault();
     try {
       const config = { headers: { Authorization: `Token ${token}` } };
-      await axios.post('http://127.0.0.1:8000/api/profile/', {
-        semester: reqSem,
-        // Course ID remains the same as current (No course change allowed)
-        course_id: profile.course_id
-      }, config);
+
+      // FIX: LocalStorage मधून जुना Course ID घेतला आणि तोच परत पाठवला.
+      const currentCourseId = localStorage.getItem('courseId');
+
+      const payload = {
+        semester: parseInt(reqSem, 10),
+        course_id: parseInt(currentCourseId, 10) // Django ला हवा असलेला Course ID
+      };
+
+      await axios.post('http://127.0.0.1:8000/api/profile/', payload, config);
 
       alert("Semester update request sent to administration.");
       fetchData(); // Refresh to show pending status
     } catch (err) {
-      alert("Failed to process request. Ensure semester value is valid.");
+      console.error("Backend Validation Error:", err.response?.data);
+      const errorMsg = err.response?.data?.detail || err.response?.data?.error || "Failed to process request.";
+      alert(`Error: ${errorMsg}`);
     }
   };
 
@@ -61,8 +66,6 @@ function Profile() {
 
   return (
     <div className="pb-5">
-      {/* Global Navbar is handled in App.js */}
-
       <div className="container mt-5">
         <div className="row justify-content-center">
           <div className="col-md-6 col-lg-5">

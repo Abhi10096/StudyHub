@@ -60,52 +60,54 @@ function Register() {
   };
 
   return (
-    <div className="container min-vh-100 d-flex align-items-center justify-content-center py-5">
+    <div className="container min-vh-100 d-flex align-items-center justify-content-center py-4">
       <div className="row justify-content-center w-100">
-        <div className="col-md-6 col-lg-5">
+        {/* कार्डची साईझ कमी केली: col-md-5 col-lg-4 */}
+        <div className="col-md-5 col-lg-4">
 
           {/* Brand Header */}
-          <div className="text-center mb-4">
-            <h2 className="fw-bolder text-primary">Join StudyHub</h2>
-            <p className="text-muted small">Begin your academic collaboration today</p>
+          <div className="text-center mb-3">
+            <h3 className="fw-bolder text-primary">Join StudyHub</h3>
+            <p className="text-muted small mb-0">Begin your academic collaboration today</p>
           </div>
 
           {/* Registration Card */}
           <div className="card shadow border-0 rounded-4 overflow-hidden">
-            <div className="card-body p-4 p-md-5">
-              <h4 className="fw-bold mb-4">Create Account</h4>
+            <div className="card-body p-3 p-md-4"> {/* पॅडिंग कमी केले */}
+              <h5 className="fw-bold mb-3">Create Account</h5>
 
               <form onSubmit={handleRegister}>
                 {/* Full Name Row */}
-                <div className="row g-2 mb-3">
+                <div className="row g-2 mb-2">
                   <div className="col-6">
-                    <label className="form-label small fw-bold text-muted text-uppercase">First Name</label>
-                    <input type="text" className="form-control bg-light border-0 shadow-none py-2"
+                    <label className="form-label small fw-bold text-muted text-uppercase mb-1">First Name</label>
+                    {/* form-control-sm वापरले */}
+                    <input type="text" className="form-control form-control-sm bg-light border-0 shadow-none"
                            placeholder="John" required onChange={(e) => setFormData({...formData, firstName: e.target.value})} />
                   </div>
                   <div className="col-6">
-                    <label className="form-label small fw-bold text-muted text-uppercase">Last Name</label>
-                    <input type="text" className="form-control bg-light border-0 shadow-none py-2"
+                    <label className="form-label small fw-bold text-muted text-uppercase mb-1">Last Name</label>
+                    <input type="text" className="form-control form-control-sm bg-light border-0 shadow-none"
                            placeholder="Doe" required onChange={(e) => setFormData({...formData, lastName: e.target.value})} />
                   </div>
                 </div>
 
                 {/* Identity & Credentials */}
-                <div className="mb-3">
-                  <label className="form-label small fw-bold text-muted text-uppercase">Username / Roll No</label>
-                  <input type="text" className="form-control bg-light border-0 shadow-none py-2"
+                <div className="mb-2">
+                  <label className="form-label small fw-bold text-muted text-uppercase mb-1">Username / Roll No</label>
+                  <input type="text" className="form-control form-control-sm bg-light border-0 shadow-none"
                          placeholder="e.g. 21MCA05" required onChange={(e) => setFormData({...formData, username: e.target.value})} />
                 </div>
-                <div className="mb-3">
-                  <label className="form-label small fw-bold text-muted text-uppercase">Secure Password</label>
-                  <input type="password" className="form-control bg-light border-0 shadow-none py-2"
+                <div className="mb-2">
+                  <label className="form-label small fw-bold text-muted text-uppercase mb-1">Secure Password</label>
+                  <input type="password" className="form-control form-control-sm bg-light border-0 shadow-none"
                          placeholder="••••••••" required onChange={(e) => setFormData({...formData, password: e.target.value})} />
                 </div>
 
                 {/* Role Definition */}
-                <div className="mb-4">
-                  <label className="form-label small fw-bold text-muted text-uppercase">System Role</label>
-                  <select className="form-select bg-light border-0 shadow-none py-2 fw-semibold"
+                <div className="mb-3">
+                  <label className="form-label small fw-bold text-muted text-uppercase mb-1">System Role</label>
+                  <select className="form-select form-select-sm bg-light border-0 shadow-none fw-semibold"
                           onChange={(e) => setFormData({...formData, role: e.target.value})}>
                     <option value="student">Register as Enrolled Student</option>
                     <option value="teacher">Register as Faculty Member</option>
@@ -113,11 +115,11 @@ function Register() {
                 </div>
 
                 {/* Academic Context (Role Dependent) */}
-                <div className="p-4 bg-light rounded-4 mb-4 border border-dashed">
-                  <div className="row g-3">
+                <div className="p-3 bg-light rounded-4 mb-3 border border-dashed">
+                  <div className="row g-2">
                     <div className={formData.role === 'student' ? "col-8" : "col-12"}>
                       <label className="fw-bold text-primary small text-uppercase d-block mb-1">Department</label>
-                      <select className="form-select border-0 shadow-sm" required
+                      <select className="form-select form-select-sm border-0 shadow-sm" required
                               onChange={(e) => setFormData({...formData, courseId: e.target.value})}>
                         <option value="">-- Choose Course --</option>
                         {courses.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
@@ -127,7 +129,7 @@ function Register() {
                     {formData.role === 'student' && (
                       <div className="col-4">
                         <label className="fw-bold text-primary small text-uppercase d-block mb-1">Semester</label>
-                        <select className="form-select border-0 shadow-sm" required
+                        <select className="form-select form-select-sm border-0 shadow-sm" required
                                 onChange={(e) => setFormData({...formData, semester: e.target.value})}>
                           <option value="">-- Sem --</option>
                           {[1,2,3,4,5,6].map(s => <option key={s} value={s}>{s}</option>)}
@@ -138,17 +140,17 @@ function Register() {
                 </div>
 
                 {/* Submission Control */}
-                <button type="submit" className="btn btn-primary w-100 fw-bold rounded-pill py-3 shadow-sm transition-hover" disabled={loading}>
+                <button type="submit" className="btn btn-primary w-100 fw-bold rounded-pill py-2 shadow-sm transition-hover" disabled={loading}>
                   {loading ? (
-                    <><span className="spinner-border spinner-border-sm me-2"></span>Processing Application...</>
+                    <><span className="spinner-border spinner-border-sm me-2"></span>Processing...</>
                   ) : "Submit Registration Request"}
                 </button>
               </form>
 
               {/* Navigation Back */}
-              <div className="text-center mt-4">
+              <div className="text-center mt-3">
                 <span className="text-muted small">Already a member? </span>
-                <Link to="/login" className="text-primary fw-bold text-decoration-none">Return to Login</Link>
+                <Link to="/login" className="text-primary fw-bold text-decoration-none small">Return to Login</Link>
               </div>
             </div>
           </div>
